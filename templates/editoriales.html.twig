@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <el-container>
+        <el-aside width="200px">
+            <a href="/editoriales">Editoriales</a>
+            <br>
+            <a href="/libros">Libros</a>
+        </el-aside>
+        <el-container>
+            <el-header>
+
+                <el-dialog :visible.sync="visible" title="Nueva Editorial">
+                    <el-input placeholder="Nombre de la editorial" v-model="nombreEditorial"></el-input>
+                    <el-input placeholder="Sede" v-model="sedeEditorial"></el-input>
+                    <el-button @click="crearEditorial">Crear</el-button>
+                </el-dialog>
+
+                <el-row :gutter="20" type="flex" justify="end">
+                    <el-col :span="4">
+                        <el-button @click="verModal">Nueva Editorial</el-button>
+                    </el-col>
+                </el-row>
+            </el-header>
+            <el-main>
+
+                <template >
+                    <el-table
+                            :data="lista_editoriales"
+                            style="width: 100%">
+                        <el-table-column
+                                prop="nombre"
+                                label="Editorial"
+                                width="480">
+                        </el-table-column>
+                        <el-table-column
+                                prop="sede"
+                                label="Sede"
+                                width="480">
+                        </el-table-column>
+                    </el-table>
+                </template>
+
+
+            </el-main>
+            <el-footer>Prueba Viajemos.com</el-footer>
+        </el-container>
+    </el-container>
+</div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+
+
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                visible: false,
+                nombreEditorial: '',
+                sedeEditorial: '',
+                lista_editoriales: []
+            }
+
+        },
+        methods: {
+            verModal: function() {
+              this.visible = true;
+              this.nombreEditorial = '';
+              this.sedeEditorial = '';
+            },
+            getEditoriales: function(){
+                const that = this;
+                axios({
+                    method: 'get',
+                    url: '/editoriales/lista',
+                    responseType: 'json'
+                }).then(function (response) {
+                    that.lista_editoriales = response.data;
+                });
+            },
+            crearEditorial: function(){
+                const that = this;
+                axios({
+                    method: 'post',
+                    url: '/editoriales/crear',
+                    responseType: 'json',
+                    data:{'nombre': that.nombreEditorial, 'sede': that.sedeEditorial}
+                }).then(function (response) {
+                    that.getEditoriales();
+                    that.$notify({
+                        title: 'Success',
+                        message: response.data.message,
+                        type: 'success'
+                    });
+                    that.visible = false;
+                });
+            },
+
+        },
+        mounted: function(){
+            this.getEditoriales();
+        }
+    })
+</script>
+<style>
+    .el-header, .el-footer {
+        background-color: #B3C0D1;
+        color: #333;
+        text-align: center;
+        line-height: 60px;
+    }
+
+    .el-aside {
+        background-color: #D3DCE6;
+        color: #333;
+        text-align: center;
+        line-height: 200px;
+    }
+
+    .el-main {
+        background-color: #E9EEF3;
+        color: #333;
+        text-align: center;
+        line-height: 160px;
+    }
+
+    body > .el-container {
+        margin-bottom: 40px;
+    }
+
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+        line-height: 260px;
+    }
+
+    .el-container:nth-child(7) .el-aside {
+        line-height: 320px;
+    }
+
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+        background: #d3dce6;
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        border-radius: 4px;
+        min-height: 36px;
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+</style>
+</html>
